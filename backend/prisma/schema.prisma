@@ -1,0 +1,90 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  googleId  String?  @unique
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  senders          Sender[]
+  emails           Email[]
+  campaigns        Campaign[]
+  slackConnections SlackConnection[]
+}
+
+model Sender {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emails    Email[]
+  campaigns Campaign[]
+
+  @@unique([userId, email])
+}
+
+model Campaign {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderId        String
+  sender          Sender   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  subject         String
+  body            String   @db.Text
+  startTime       DateTime
+  delayMs         Int
+  hourlyLimit     Int
+  totalRecipients Int
+  createdAt       DateTime @default(now())
+
+  emails Email[]
+}
+
+model Email {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         Sender    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  campaignId     String?
+  campaign       Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  recipient      String
+  subject        String
+  body           String    @db.Text
+  scheduledAt    DateTime
+  sentAt         DateTime?
+  status         String    @default("scheduled") // scheduled, processing, sent, failed
+  bullJobId      String?
+  idempotencyKey String    @unique
+  failureReason  String?   @db.Text
+  retryCount     Int       @default(0)
+  lastAttemptAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model SlackConnection {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId      String
+  accessToken String
+  active      Boolean  @default(true)
+  connectedAt DateTime @default(now())
+}
