@@ -12,7 +12,7 @@ router.get('/google/callback',
     // Successful authentication, redirect home/dashboard.
     // Ensure we are redirecting to the frontend port (e.g., 5173).
     // In production, backend and frontend might be on the same domain or behind a proxy.
-    const frontendUrl = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5173');
     res.redirect(frontendUrl);
   }
 );

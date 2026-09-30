@@ -24,22 +24,20 @@ export const initElasticsearch = async () => {
   try {
     const exists = await client.indices.exists({ index: INDEX_NAME });
     if (!exists) {
-      await client.indices.create({
+      await (client.indices.create as any)({
         index: INDEX_NAME,
-        body: {
-          mappings: {
-            properties: {
-              emailId: { type: 'keyword' },
-              userId: { type: 'keyword' },
-              campaignId: { type: 'keyword' },
-              sender: { type: 'text' },
-              recipient: { type: 'text' },
-              subject: { type: 'text' },
-              body: { type: 'text' },
-              status: { type: 'keyword' },
-              scheduledAt: { type: 'date' },
-              sentAt: { type: 'date' }
-            }
+        mappings: {
+          properties: {
+            emailId: { type: 'keyword' },
+            userId: { type: 'keyword' },
+            campaignId: { type: 'keyword' },
+            sender: { type: 'text' },
+            recipient: { type: 'text' },
+            subject: { type: 'text' },
+            body: { type: 'text' },
+            status: { type: 'keyword' },
+            scheduledAt: { type: 'date' },
+            sentAt: { type: 'date' }
           }
         }
       });
@@ -54,10 +52,10 @@ export const initElasticsearch = async () => {
 export const indexEmail = async (doc: any) => {
   if (!client) return;
   try {
-    await client.index({
+    await (client.index as any)({
       index: INDEX_NAME,
       id: doc.emailId, // Use the DB id as the ES id
-      body: doc
+      document: doc
     });
   } catch (error) {
     console.error(`Failed to index email ${doc.emailId}:`, error);
@@ -67,21 +65,19 @@ export const indexEmail = async (doc: any) => {
 export const searchEmails = async (userId: string, query: string) => {
   if (!client) return [];
   try {
-    const result = await client.search({
+    const result = await (client.search as any)({
       index: INDEX_NAME,
-      body: {
-        query: {
-          bool: {
-            must: [
-              { term: { userId } },
-              {
-                multi_match: {
-                  query,
-                  fields: ['recipient', 'subject', 'body', 'sender']
-                }
+      query: {
+        bool: {
+          must: [
+            { term: { userId } },
+            {
+              multi_match: {
+                query,
+                fields: ['recipient', 'subject', 'body', 'sender']
               }
-            ]
-          }
+            }
+          ]
         }
       }
     });

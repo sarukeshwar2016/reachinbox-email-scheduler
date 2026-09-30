@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LogOut, Plus, Clock, Send, MessageSquare, Search } from 'lucide-react';
 import ComposeEmailModal from '../components/ComposeEmailModal';
+import { API_BASE_URL } from '../config/api';
 
 axios.defaults.withCredentials = true;
 
@@ -17,14 +18,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Fetch User
-    axios.get('http://localhost:5000/api/auth/me')
+    axios.get(`${API_BASE_URL}/api/auth/me`)
       .then((res) => setUser(res.data.data))
       .catch(() => {
         window.location.href = '/login';
       });
 
     // Fetch Slack status
-    axios.get('http://localhost:5000/api/slack/status')
+    axios.get(`${API_BASE_URL}/api/slack/status`)
       .then((res) => setSlackConnected(res.data.data.connected))
       .catch(console.error);
   }, []);
@@ -33,7 +34,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const endpoint = activeTab === 'scheduled' ? '/scheduled' : '/sent';
-      const res = await axios.get(`http://localhost:5000/api/emails${endpoint}`);
+      const res = await axios.get(`${API_BASE_URL}/api/emails${endpoint}`);
       setEmails(res.data.data.emails);
     } catch (err) {
       console.error(err);
@@ -49,16 +50,16 @@ const Dashboard = () => {
   }, [user, activeTab]);
 
   const handleLogout = async () => {
-    await axios.post('http://localhost:5000/api/auth/logout');
+    await axios.post(`${API_BASE_URL}/api/auth/logout`);
     window.location.href = '/login';
   };
 
   const handleSlackConnect = () => {
-    window.location.href = 'http://localhost:5000/api/slack/connect';
+    window.location.href = `${API_BASE_URL}/api/slack/connect`;
   };
 
   const handleSlackDisconnect = async () => {
-    await axios.post('http://localhost:5000/api/slack/disconnect');
+    await axios.post(`${API_BASE_URL}/api/slack/disconnect`);
     setSlackConnected(false);
   };
 

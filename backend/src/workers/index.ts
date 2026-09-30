@@ -78,7 +78,7 @@ export const startWorker = () => {
     if (!result.success) {
       await prisma.email.update({
         where: { id: emailId },
-        data: { status: 'failed', failureReason: result.error }
+        data: { status: 'failed', failureReason: result.error || null }
       });
       throw new Error(result.error);
     }

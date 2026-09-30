@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { X, Upload, Link, Clock, User, Users } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 interface ComposeProps {
   onClose: () => void;
@@ -24,10 +25,10 @@ const ComposeEmailModal: React.FC<ComposeProps> = ({ onClose }) => {
   const [singleEmail, setSingleEmail] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/emails/senders').then(async (res) => {
+    axios.get(`${API_BASE_URL}/api/emails/senders`).then(async (res) => {
       let data = res.data.data;
       if (data.length === 0) {
-        const newSender = await axios.post('http://localhost:5000/api/emails/senders', {
+        const newSender = await axios.post(`${API_BASE_URL}/api/emails/senders`, {
           email: 'demo@reachinbox.ai',
           name: 'Demo Sender',
         });
@@ -100,7 +101,7 @@ const ComposeEmailModal: React.FC<ComposeProps> = ({ onClose }) => {
     setLoading(true);
     setError('');
     try {
-      await axios.post('http://localhost:5000/api/emails/schedule', {
+      await axios.post(`${API_BASE_URL}/api/emails/schedule`, {
         subject,
         body,
         startTime: new Date(startTime).toISOString(),

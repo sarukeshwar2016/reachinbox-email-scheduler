@@ -10,7 +10,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Invalid request data',
-        details: err.errors
+        details: (err as any).issues || (err as any).errors || []
       }
     });
   }

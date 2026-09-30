@@ -46,7 +46,7 @@ router.get('/callback', async (req, res) => {
     });
 
     // Ensure we are redirecting to the frontend port (e.g., 5173).
-    const frontendUrl = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5173');
     res.redirect(frontendUrl);
   } catch (error) {
     console.error('Slack Callback Error:', error);

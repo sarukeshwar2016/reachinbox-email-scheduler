@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 import { env } from '../config/env';
 
 const PLACEHOLDER_MARKERS = ['placeholder_', 'your_'];
@@ -8,9 +8,9 @@ const isPlaceholder = (value: string) =>
 
 // Lazily resolved transporter — auto-provisions an Ethereal account when
 // the .env credentials are still placeholders.
-let _transporterPromise: Promise<nodemailer.Transporter> | null = null;
+let _transporterPromise: Promise<Transporter> | null = null;
 
-const getTransporter = (): Promise<nodemailer.Transporter> => {
+const getTransporter = (): Promise<Transporter> => {
   if (_transporterPromise) return _transporterPromise;
 
   _transporterPromise = (async () => {
